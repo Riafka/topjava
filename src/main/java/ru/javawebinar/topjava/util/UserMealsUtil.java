@@ -34,8 +34,7 @@ public class UserMealsUtil {
 
         for (UserMeal userMeal : meals) {
             LocalDate thisDate = userMeal.getDateTime().toLocalDate();
-            int sumCaloriesPerDay = caloriesPerDayMap.getOrDefault(thisDate, 0) + userMeal.getCalories();
-            caloriesPerDayMap.put(thisDate, sumCaloriesPerDay);
+            caloriesPerDayMap.merge(thisDate, userMeal.getCalories(), Integer::sum);
         }
         for (UserMeal userMeal : meals) {
             LocalTime thisTime = userMeal.getDateTime().toLocalTime();
