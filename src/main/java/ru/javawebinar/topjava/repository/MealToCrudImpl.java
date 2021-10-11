@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.repository;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.FilterStrategy;
-import ru.javawebinar.topjava.util.GetAllStrategy;
 import ru.javawebinar.topjava.util.MealsUtil;
 import org.slf4j.Logger;
 
@@ -20,11 +19,13 @@ public class MealToCrudImpl implements MealToCrud {
     private static final ConcurrentHashMap<Integer, MealTo> mealToMap = new ConcurrentHashMap<>();
     private static final AtomicInteger counter = new AtomicInteger(0);
     private static volatile MealToCrudImpl instance;
-    private static final FilterStrategy filterStrategy = new GetAllStrategy();
+    private static final FilterStrategy filterStrategy = (meals,startTime,endTime,calories)-> MealsUtil.getAllByStreams(meals,calories);
 
     private MealToCrudImpl() {
         List<Meal> meals = MealsUtil.getMeals();
-        List<MealTo> mealsTo = filterStrategy.filter(meals, null, null, MealsUtil.MAX_CALORIES);
+
+        List<MealTo> mealsTo= filterStrategy.filter(meals, null, null, MealsUtil.MAX_CALORIES);
+
         mealsTo.forEach(mealTo -> {
             mealTo.setId(counter.incrementAndGet());
             mealToMap.put(mealTo.getId(), mealTo);

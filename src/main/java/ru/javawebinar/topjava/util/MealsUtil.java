@@ -17,7 +17,7 @@ public class MealsUtil {
     public static final int MAX_CALORIES = 2000;
     public static void main(String[] args) {
         List<Meal> meals = getMeals();
-        FilterStrategy filterStrategy = new FilterByStreamsStrategy();
+        FilterStrategy filterStrategy = MealsUtil::filteredByStreams;
         List<MealTo> mealsTo = filterStrategy.filter(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
     }
