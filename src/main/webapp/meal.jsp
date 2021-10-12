@@ -37,19 +37,19 @@
 </style>
 <h2>${meal == null ? 'Create Meal': 'Edit Meal'}</h2>
 <form method="POST" action='meals' name="frmEditMeal">
-<input type="text" readonly="readonly" name="Id" hidden value="<c:out value="${meal.id}" />" />
+<input type="text" readonly="readonly" name="Id" hidden value="${meal.id}" />
     <ul class="wrapper">
     <li class="form-row">
         <label for="DateTime">DateTime:</label>
-        <input required type="datetime-local" name="DateTime" id="DateTime" value="<c:out value="${meal.dateTime}" />" />
+        <input required type="datetime-local" name="DateTime" id="DateTime" value="${meal.dateTime}" />
     </li>
     <li class="form-row">
         <label for="Description">Description:</label>
-        <input required type="text" name="Description" id="Description" value="<c:out value="${meal.description}" />" />
+        <input required type="text" name="Description" id="Description" value="${meal.description}" />
     </li>
     <li class="form-row">
         <label for="Calories">Calories:</label>
-        <input required type="number" name="Calories" id="Calories" value="<c:out value="${meal.calories}" />" />
+        <input required type="number" name="Calories" id="Calories" value="${meal.calories}" />
     </li>
     </ul>
     <input class ="button" type="submit" value="Save" />

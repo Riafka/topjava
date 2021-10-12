@@ -1,9 +1,9 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
-import ru.javawebinar.topjava.model.MealTo;
-import ru.javawebinar.topjava.repository.MealToCrud;
-import ru.javawebinar.topjava.repository.MealToCrudImpl;
+import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.repository.MealCrud;
+import ru.javawebinar.topjava.repository.MealCrudImpl;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
@@ -18,7 +18,7 @@ public class MealServlet extends HttpServlet {
     private static final String MEALS_LIST = "meals.jsp";
 
     private static final Logger log = getLogger(MealServlet.class);
-    private static final MealToCrud mealToCrud = MealToCrudImpl.getInstance();
+    private static final MealCrud mealCrud = new MealCrudImpl();
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Override
@@ -31,51 +31,45 @@ public class MealServlet extends HttpServlet {
 
         if (action.equalsIgnoreCase("delete")) {
             int id = Integer.parseInt(request.getParameter("id"));
-            MealTo mealTo = mealToCrud.findById(id);
-            mealToCrud.deleteMealTo(mealTo);
+            mealCrud.delete(id);
             // при удалении прямой редирект
-            log.debug("Doing GET. redirect to meals");
+            log.debug("Doing GET/delete. redirect to meals.jsp");
             response.sendRedirect("meals");
             return;
         } else if (action.equalsIgnoreCase("edit")) {
             forward = INSERT_OR_EDIT;
             int id = Integer.parseInt(request.getParameter("id"));
-            MealTo mealTo = mealToCrud.findById(id);
+            Meal mealTo = mealCrud.findById(id);
             request.setAttribute("meal", mealTo);
+            log.debug("Doing GET/edit. forward to meal.jsp");
         } else if (action.equalsIgnoreCase("Meals")) {
             forward = MEALS_LIST;
-            request.setAttribute("meals", mealToCrud.findAllMealsTo());
+            request.setAttribute("meals", mealCrud.findAll());
+            log.debug("Doing GET. forward to meals.jsp");
         } else {
             forward = INSERT_OR_EDIT;
+            log.debug("Doing GET/create. forward to meal.jsp");
         }
-
-        log.debug("Doing GET. Forward to " + forward);
         RequestDispatcher view = request.getRequestDispatcher(forward);
         view.forward(request, response);
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
         LocalDateTime dateTime = LocalDateTime.from(dateTimeFormatter.parse(request.getParameter("DateTime")));
         String description = request.getParameter("Description");
         int calories = Integer.parseInt(request.getParameter("Calories"));
         String id = request.getParameter("Id");
-
-        MealTo mealTo = new MealTo(dateTime, description, calories, false);
+        Meal meal;
         if (id == null || id.isEmpty()) {
-            mealToCrud.createMealTo(mealTo);
+            meal = new Meal(0, dateTime, description, calories);
+            mealCrud.create(meal);
         } else {
-            MealTo mealToFound = mealToCrud.findById(Integer.parseInt(id));
-            if (mealToFound != null) {
-                mealTo.setId(mealToFound.getId());
-                mealToCrud.updateMealTo(mealTo);
-            }
+            meal = new Meal(Integer.parseInt(id), dateTime, description, calories);
+            mealCrud.update(meal);
         }
-
-        log.debug("Doing POST. Forward to " + MEALS_LIST);
-        RequestDispatcher view = request.getRequestDispatcher(MEALS_LIST);
-        request.setAttribute("meals", mealToCrud.findAllMealsTo());
-        view.forward(request, response);
+        log.debug("Doing POST. redirect to " + MEALS_LIST);
+        response.sendRedirect("meals");
     }
 }
