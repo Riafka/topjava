@@ -24,9 +24,7 @@ public class MealsUtil {
 
     public static void main(String[] args) {
         List<Meal> meals = getMeals();
-        Predicate<Meal> beforeLaunch = (meal)->TimeUtil.isBetweenHalfOpen(meal.getTime(), LocalTime.of(7, 0), LocalTime.of(12, 0));
-        setFilterMeal(beforeLaunch);
-        List<MealTo> mealsTo = filteredByStreams(meals, MAX_CALORIES);
+        List<MealTo> mealsTo = filteredByStreams(meals,LocalTime.of(7, 0), LocalTime.of(12, 0), MAX_CALORIES);
         mealsTo.forEach(System.out::println);
     }
 
@@ -41,7 +39,11 @@ public class MealsUtil {
                 new Meal(7, LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410)
         );
     }
-
+    public static List<MealTo> filteredByStreams(List<Meal> meals,LocalTime startTime,LocalTime endTime,int caloriesPerDay){
+        Predicate<Meal> timePredicate = (meal)->TimeUtil.isBetweenHalfOpen(meal.getTime(), startTime, endTime);
+        setFilterMeal(timePredicate);
+        return filteredByStreams(meals,caloriesPerDay);
+    }
     public static List<MealTo> filteredByStreams(List<Meal> meals, int caloriesPerDay) {
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
                 .collect(

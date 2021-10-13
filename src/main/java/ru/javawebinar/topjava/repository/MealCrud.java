@@ -5,9 +5,9 @@ import ru.javawebinar.topjava.model.MealTo;
 import java.util.List;
 
 public interface MealCrud {
-    void create(Meal mealTo);
+    Meal create(Meal meal);
     void delete(int id);
-    void update(Meal mealTo);
+    Meal update(Meal meal);
     Meal findById(int id);
-    List<MealTo> findAll();
+    List<Meal> findAll();
 }

@@ -2,14 +2,18 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.repository.MealCrud;
-import ru.javawebinar.topjava.repository.MealCrudImpl;
+import ru.javawebinar.topjava.repository.MealCrudInMemory;
+import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.*;
 import javax.servlet.http.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.function.Predicate;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -18,8 +22,16 @@ public class MealServlet extends HttpServlet {
     private static final String MEALS_LIST = "meals.jsp";
 
     private static final Logger log = getLogger(MealServlet.class);
-    private static final MealCrud mealCrud = new MealCrudImpl();
+    private MealCrud mealCrud;
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        Predicate<Meal> getAllMealsPredicate = (meal -> true);
+        MealsUtil.setFilterMeal(getAllMealsPredicate);
+        mealCrud = new MealCrudInMemory();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -32,7 +44,6 @@ public class MealServlet extends HttpServlet {
         if (action.equalsIgnoreCase("delete")) {
             int id = Integer.parseInt(request.getParameter("id"));
             mealCrud.delete(id);
-            // при удалении прямой редирект
             log.debug("Doing GET/delete. redirect to meals.jsp");
             response.sendRedirect("meals");
             return;
@@ -44,7 +55,9 @@ public class MealServlet extends HttpServlet {
             log.debug("Doing GET/edit. forward to meal.jsp");
         } else if (action.equalsIgnoreCase("Meals")) {
             forward = MEALS_LIST;
-            request.setAttribute("meals", mealCrud.findAll());
+            List<Meal> meals = mealCrud.findAll();
+            List<MealTo> mealsTo = MealsUtil.filteredByStreams(meals,  MealsUtil.MAX_CALORIES);
+            request.setAttribute("meals", mealsTo);
             log.debug("Doing GET. forward to meals.jsp");
         } else {
             forward = INSERT_OR_EDIT;
@@ -57,7 +70,7 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        LocalDateTime dateTime = LocalDateTime.from(dateTimeFormatter.parse(request.getParameter("DateTime")));
+        LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("DateTime"), dateTimeFormatter);
         String description = request.getParameter("Description");
         int calories = Integer.parseInt(request.getParameter("Calories"));
         String id = request.getParameter("Id");
