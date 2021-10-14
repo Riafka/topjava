@@ -9,25 +9,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class MealCrudInMemory implements MealCrud {
-    private static final Logger log = getLogger(MealCrudInMemory.class);
+public class InMemoryMealCrud implements MealCrud {
+    private static final Logger log = getLogger(InMemoryMealCrud.class);
     private final Map<Integer, Meal> mealCollection = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
 
-    public MealCrudInMemory() {
+    public InMemoryMealCrud() {
         List<Meal> meals = MealsUtil.getMeals();
         meals.forEach(this::create);
     }
 
     @Override
     public Meal create(Meal meal) {
-        Meal mealWithCounter = new Meal(counter.incrementAndGet(), meal.getDateTime(), meal.getDescription(), meal.getCalories());
-        mealCollection.put(mealWithCounter.getId(), mealWithCounter);
-        log.debug("Create " + mealWithCounter);
-        return mealWithCounter;
+        synchronized (counter) {
+            int i = counter.incrementAndGet();
+            Meal mealWithCounter = new Meal(i, meal.getDateTime(), meal.getDescription(), meal.getCalories());
+            mealCollection.put(i, mealWithCounter);
+            log.debug("Create " + mealWithCounter);
+            return mealWithCounter;
+        }
     }
 
     @Override
@@ -38,7 +42,7 @@ public class MealCrudInMemory implements MealCrud {
 
     @Override
     public Meal update(Meal meal) {
-       Meal oldMeal = mealCollection.replace(meal.getId(),meal);
+        Meal oldMeal = mealCollection.replace(meal.getId(), meal);
         if (oldMeal != null) {
             log.debug("Update " + meal);
             return meal;
@@ -51,7 +55,7 @@ public class MealCrudInMemory implements MealCrud {
     @Override
     public List<Meal> findAll() {
         return new ArrayList<>(mealCollection.values());
-     }
+    }
 
     @Override
     public Meal findById(int id) {

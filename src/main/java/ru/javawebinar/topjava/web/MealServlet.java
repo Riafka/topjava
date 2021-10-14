@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.repository.MealCrud;
-import ru.javawebinar.topjava.repository.MealCrudInMemory;
+import ru.javawebinar.topjava.repository.InMemoryMealCrud;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.*;
@@ -26,11 +26,10 @@ public class MealServlet extends HttpServlet {
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     @Override
-    public void init() throws ServletException {
-        super.init();
+    public void init()  {
         Predicate<Meal> getAllMealsPredicate = (meal -> true);
         MealsUtil.setFilterMeal(getAllMealsPredicate);
-        mealCrud = new MealCrudInMemory();
+        mealCrud = new InMemoryMealCrud();
     }
 
     @Override
@@ -70,7 +69,7 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         request.setCharacterEncoding("UTF-8");
-        LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("DateTime"), dateTimeFormatter);
+        LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("DateTime"));
         String description = request.getParameter("Description");
         int calories = Integer.parseInt(request.getParameter("Calories"));
         String id = request.getParameter("Id");

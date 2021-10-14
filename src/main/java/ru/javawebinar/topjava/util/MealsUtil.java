@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class MealsUtil {
     public static final int MAX_CALORIES = 2000;
-    public static Predicate<Meal> filterMeal;
+    public static volatile Predicate<Meal> filterMeal;
 
     public static void setFilterMeal(Predicate<Meal> filterMeal) {
         MealsUtil.filterMeal = filterMeal;
