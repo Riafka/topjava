@@ -1,4 +1,13 @@
 <html lang="ru">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript" >
+    jQuery(document).ready(function(){
+        $("select.id").change(function(){
+            var selectedid  = $(".id option:selected").val();
+            $("a.Users").attr("href","users?UserId="+selectedid);
+        });
+    });
+</script>
 <head>
     <meta charset="UTF-8">
     <title>Java Enterprise (Topjava)</title>
@@ -6,9 +15,13 @@
 <body>
 <h3>Проект <a href="https://github.com/JavaWebinar/topjava" target="_blank">Java Enterprise (Topjava)</a></h3>
 <hr>
+<select class="id" >
+    <option value="1" title="User">User</option>
+    <option value="2" title="Admin">Admin</option>
+</select>
 <ul style="font-size: large">
-    <li><a href="users">Users</a></li>
-    <li><a href="meals">Meals</a></li>
+    <li><a class="Users" href="users?UserId=1">Users</a></li>
+    <li><a class="Meals" href="meals">Meals</a></li>
 </ul>
 </body>
 </html>
