@@ -7,16 +7,16 @@ import java.util.List;
 
 public interface MealRepository {
     // null if updated meal do not belong to userId
-    Meal save(Meal meal, Integer userId);
+    Meal save(Meal meal, int userId);
 
     // false if meal do not belong to userId
-    boolean delete(int id, Integer userId);
+    boolean delete(int id, int userId);
 
     // null if meal do not belong to userId
-    Meal get(int id, Integer userId);
+    Meal get(int id, int userId);
 
     // ORDERED dateTime desc
-    List<Meal> getAll(Integer userId);
+    List<Meal> getAll(int userId);
 
-    List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, Integer userId);
+    List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, int userId);
 }

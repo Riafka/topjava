@@ -1,6 +1,7 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
+import org.springframework.util.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,18 +17,14 @@ public class UserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         log.debug("forward to users");
-        String userId = request.getParameter("UserId");
-        if (userId!= null && !userId.isEmpty()){
-           SecurityUtil.setUserId(Integer.parseInt(userId));
-        }
         request.getRequestDispatcher("/users.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        log.debug("post to users");
         String userId = request.getParameter("userId");
-        if (userId!= null && !userId.isEmpty()){
+        log.debug("login with id {}", userId);
+        if (StringUtils.hasLength(userId)) {
             SecurityUtil.setUserId(Integer.parseInt(userId));
         }
         response.sendRedirect("meals");

@@ -32,41 +32,36 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public Meal save(Meal meal, Integer userId) {
+    public Meal save(Meal meal, int userId) {
         log.info("save {}", meal);
-        Map<Integer, Meal> meals = repository.get(userId);
-        if (meals == null) {
-            meals = new ConcurrentHashMap<>();
-            repository.put(userId, meals);
-        }
+        Map<Integer, Meal> meals = repository.computeIfAbsent(userId,userMeals-> new ConcurrentHashMap<>());
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             meals.put(meal.getId(), meal);
             return meal;
         }
-        return isMealBelongsToUser(meal, userId) ? meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal) : null;
+        return  meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
     }
 
     @Override
-    public boolean delete(int id, Integer userId) {
+    public boolean delete(int id, int userId) {
         log.info("delete {}", id);
         Map<Integer, Meal> meals = repository.get(userId);
         if (meals != null) {
             Meal meal = meals.get(id);
-            return isMealBelongsToUser(meal, userId) && meals.remove(id) != null;
+            return meals.remove(id) != null;
         }
         return false;
     }
 
     @Override
-    public Meal get(int id, Integer userId) {
+    public Meal get(int id, int userId) {
         log.info("get {}", id);
         Map<Integer, Meal> meals = repository.get(userId);
-        Meal result = meals != null ? meals.get(id) : null;
-        return isMealBelongsToUser(result, userId) ? result : null;
+        return meals != null ? meals.get(id) : null;
     }
 
-    public List<Meal> getAllWithPredicate(Integer userId, Predicate<Meal> predicate) {
+    private List<Meal> getAllWithPredicate(int userId, Predicate<Meal> predicate) {
         Map<Integer, Meal> meals = repository.get(userId);
         if (meals == null) return Collections.emptyList();
         return meals.values().stream()
@@ -76,20 +71,16 @@ public class InMemoryMealRepository implements MealRepository {
     }
 
     @Override
-    public List<Meal> getAll(Integer userId) {
+    public List<Meal> getAll(int userId) {
         log.info("getAll");
         return getAllWithPredicate(userId, meal -> true);
     }
-
-    public List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, Integer userId) {
+    @Override
+    public List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, int userId) {
         log.info("getAllWithFilter {} {}", startDate, endDate);
         return getAllWithPredicate(userId, meal -> DateTimeUtil.isBetweenClose(meal.getDate(),
                                    startDate != null ? startDate : LocalDate.MIN,
                                    endDate != null ? endDate : LocalDate.MAX));
-    }
-
-    private boolean isMealBelongsToUser(Meal meal, Integer UserId) {
-        return meal != null && meal.getUserId() == UserId;
     }
 }
 
