@@ -21,8 +21,9 @@
     <h3><a href="index.html">Home</a></h3>
     <hr/>
     <h2>Meals</h2>
-    <form id="filter" method="get" action="meals?action=all">
+    <form id="filter" method="get" action="meals">
         <div class="row">
+            <input type="hidden" name="action" value="filter">
             <div class="col-2">
                 <label for="startDate">От даты (включая)</label>
                 <input class="form-control" name="startDate" id="startDate" type="date" value="${param.startDate}">

@@ -19,9 +19,14 @@ public class SpringMain {
         try (ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml")) {
             System.out.println("Bean definition names: " + Arrays.toString(appCtx.getBeanDefinitionNames()));
             AdminRestController adminUserController = appCtx.getBean(AdminRestController.class);
-            adminUserController.create(new User(null, "userName", "email@mail.ru", "password", Role.ADMIN));
+            adminUserController.create(new User(null, "userName", "3@mail.ru", "password", Role.ADMIN));
+            adminUserController.create(new User(null, "adminName", "2@mail.ru", "password", Role.ADMIN));
+            adminUserController.create(new User(null, "userName", "1@mail.ru", "password", Role.ADMIN));
+            List<User> userList = adminUserController.getAll();
+            userList.forEach(System.out::println);
+
             MealRestController mealRestController = appCtx.getBean(MealRestController.class);
-            List<MealTo> mealToList = mealRestController.getAllTosWithFilter(null,null,LocalDate.of(2018,Month.JANUARY,30 ),null);
+            List<MealTo> mealToList = mealRestController.getAllTosWithFilter(null, null, LocalDate.of(2018, Month.JANUARY, 30), null);
             mealToList.forEach(System.out::println);
         }
     }

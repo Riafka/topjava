@@ -18,8 +18,8 @@ import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 
 @Controller
 public class MealRestController {
-    private final MealService service;
     private static final Logger log = getLogger(MealRestController.class);
+    private final MealService service;
 
     public MealRestController(MealService service) {
         this.service = service;
@@ -27,6 +27,7 @@ public class MealRestController {
 
     public Meal create(Meal meal) {
         log.info("create {}", meal);
+        meal.setUserId(SecurityUtil.authUserId());
         checkNew(meal);
         return service.create(meal, SecurityUtil.authUserId());
     }
@@ -44,15 +45,18 @@ public class MealRestController {
     public void update(Meal meal, int id) {
         log.info("update {} with id={}", meal, id);
         assureIdConsistent(meal, id);
+        meal.setUserId(SecurityUtil.authUserId());
         service.update(meal, SecurityUtil.authUserId());
     }
 
     public List<MealTo> getAllTos() {
+        log.info("getAllTos");
         List<Meal> meals = service.getAll(SecurityUtil.authUserId());
         return MealsUtil.getTos(meals, SecurityUtil.authUserCaloriesPerDay());
     }
 
     public List<MealTo> getAllTosWithFilter(LocalDate startDate, LocalTime startTime, LocalDate endDate, LocalTime endTime) {
+        log.info("getAllTosWithFilter {} {} {} {}", startDate, startTime, endDate, endTime);
         List<Meal> meals = service.getAllTosWithFilter(startDate, endDate, SecurityUtil.authUserId());
         return MealsUtil.getFilteredTos(meals,
                 SecurityUtil.authUserCaloriesPerDay(),
