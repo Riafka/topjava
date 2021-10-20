@@ -34,24 +34,20 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public Meal save(Meal meal, int userId) {
         log.info("save {}", meal);
-        Map<Integer, Meal> meals = repository.computeIfAbsent(userId,userMeals-> new ConcurrentHashMap<>());
+        Map<Integer, Meal> meals = repository.computeIfAbsent(userId, userMeals -> new ConcurrentHashMap<>());
         if (meal.isNew()) {
             meal.setId(counter.incrementAndGet());
             meals.put(meal.getId(), meal);
             return meal;
         }
-        return  meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+        return meals.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
     }
 
     @Override
     public boolean delete(int id, int userId) {
         log.info("delete {}", id);
         Map<Integer, Meal> meals = repository.get(userId);
-        if (meals != null) {
-            Meal meal = meals.get(id);
-            return meals.remove(id) != null;
-        }
-        return false;
+        return meals != null && meals.remove(id) != null;
     }
 
     @Override
@@ -75,12 +71,13 @@ public class InMemoryMealRepository implements MealRepository {
         log.info("getAll");
         return getAllWithPredicate(userId, meal -> true);
     }
+
     @Override
     public List<Meal> getAllWithFilter(LocalDate startDate, LocalDate endDate, int userId) {
         log.info("getAllWithFilter {} {}", startDate, endDate);
         return getAllWithPredicate(userId, meal -> DateTimeUtil.isBetweenClose(meal.getDate(),
-                                   startDate != null ? startDate : LocalDate.MIN,
-                                   endDate != null ? endDate : LocalDate.MAX));
+                startDate != null ? startDate : LocalDate.MIN,
+                endDate != null ? endDate : LocalDate.MAX));
     }
 }
 
