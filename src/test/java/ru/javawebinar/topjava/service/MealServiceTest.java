@@ -52,7 +52,7 @@ public class MealServiceTest {
     @Test
     public void duplicateDateTimeCreate() {
         assertThrows(DataAccessException.class,
-                () -> service.create(new Meal(null, LocalDateTime.of(2021, Month.OCTOBER, 22, 9, 0), "Дубль завтрака юзера", 1500), USER_ID));
+                () -> service.create(new Meal(null, userBreakfast.getDateTime(), "Дубль завтрака юзера", 1500), USER_ID));
     }
 
     @Test
@@ -86,10 +86,14 @@ public class MealServiceTest {
     }
 
     @Test
-    public void getAll() {
+    public void getAllForUser() {
         List<Meal> allUserMeals = service.getAll(USER_ID);
-        List<Meal> allAdminMeals = service.getAll(ADMIN_ID);
         assertMatch(allUserMeals, userDinner, userLunch, userBreakfast);
+    }
+
+    @Test
+    public void getAllForAdmin() {
+        List<Meal> allAdminMeals = service.getAll(ADMIN_ID);
         assertMatch(allAdminMeals, adminDinner, adminLunch, adminBreakfast);
     }
 
@@ -102,7 +106,7 @@ public class MealServiceTest {
 
     @Test
     public void updateNotFound() {
-        Meal updated = getUpdated();
-        assertThrows(NotFoundException.class, () -> service.update(updated, ADMIN_ID));
+        Meal meal = service.get(MEAL_ID_USER_DINNER, USER_ID);
+        assertThrows(NotFoundException.class, () -> service.update(meal, ADMIN_ID));
     }
 }
