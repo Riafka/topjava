@@ -14,13 +14,17 @@ public class MealTestData {
     public static final int MEAL_ID_USER_BREAKFAST = START_SEQ + 2;
     public static final int MEAL_ID_USER_LUNCH = START_SEQ + 3;
     public static final int MEAL_ID_USER_DINNER = START_SEQ + 4;
-    public static final int MEAL_ID_ADMIN_BREAKFAST = START_SEQ + 5;
-    public static final int MEAL_ID_ADMIN_LUNCH = START_SEQ + 6;
-    public static final int MEAL_ID_ADMIN_DINNER = START_SEQ + 7;
+    public static final int MEAL_ID_USER_ADDITIONAL = START_SEQ + 5;
+    public static final int MEAL_ID_USER_DINNER_TOMORROW = START_SEQ + 6;
+    public static final int MEAL_ID_ADMIN_BREAKFAST = START_SEQ + 7;
+    public static final int MEAL_ID_ADMIN_LUNCH = START_SEQ + 8;
+    public static final int MEAL_ID_ADMIN_DINNER = START_SEQ + 9;
 
     public static final Meal userBreakfast = new Meal(MEAL_ID_USER_BREAKFAST, LocalDateTime.of(2021, Month.OCTOBER, 22, 9, 0), "Завтрак", 500);
     public static final Meal userLunch = new Meal(MEAL_ID_USER_LUNCH, LocalDateTime.of(2021, Month.OCTOBER, 22, 12, 0), "Обед", 1000);
-    public static final Meal userDinner = new Meal(MEAL_ID_USER_DINNER, LocalDateTime.of(2021, Month.OCTOBER, 23, 19, 0), "Ужин на завтра", 2500);
+    public static final Meal userDinner = new Meal(MEAL_ID_USER_DINNER, LocalDateTime.of(2021, Month.OCTOBER, 22, 19, 0), "Ужин", 500);
+    public static final Meal userAdditionalFood = new Meal(MEAL_ID_USER_ADDITIONAL, LocalDateTime.of(2021, Month.OCTOBER, 22, 23, 0), "Еда на граничное значение", 500);
+    public static final Meal userDinnerTomorrow = new Meal(MEAL_ID_USER_DINNER_TOMORROW, LocalDateTime.of(2021, Month.OCTOBER, 23, 19, 0), "Ужин на завтра", 2100);
 
     public static final Meal adminBreakfast = new Meal(MEAL_ID_ADMIN_BREAKFAST, LocalDateTime.of(2021, Month.OCTOBER, 22, 9, 0), "Завтрак админа", 1500);
     public static final Meal adminLunch = new Meal(MEAL_ID_ADMIN_LUNCH, LocalDateTime.of(2021, Month.OCTOBER, 22, 12, 0), "Плотный обед админа", 1500);

@@ -14,7 +14,6 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -78,17 +77,21 @@ public class MealServiceTest {
     }
 
     @Test
-    public void getBetweenInclusive() {
+    public void getBetweenInclusiveForUser() {
         List<Meal> tomorrowUserMeals = service.getBetweenInclusive(LocalDate.of(2021, Month.OCTOBER, 23), null, USER_ID);
+        assertMatch(tomorrowUserMeals, userDinnerTomorrow);
+    }
+
+    @Test
+    public void getBetweenInclusiveForAdmin() {
         List<Meal> todayAdminMeals = service.getBetweenInclusive(null, LocalDate.of(2021, Month.OCTOBER, 22), ADMIN_ID);
-        assertMatch(tomorrowUserMeals, userDinner);
         assertMatch(todayAdminMeals, adminLunch, adminBreakfast);
     }
 
     @Test
     public void getAllForUser() {
         List<Meal> allUserMeals = service.getAll(USER_ID);
-        assertMatch(allUserMeals, userDinner, userLunch, userBreakfast);
+        assertMatch(allUserMeals, userDinnerTomorrow, userAdditionalFood, userDinner, userLunch, userBreakfast);
     }
 
     @Test
