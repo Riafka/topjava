@@ -3,8 +3,6 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,7 +121,7 @@ public class MealServiceTest {
     }
     @AfterClass
     public static void afterClass() {
-        final Map<String, Long> methodDuration =  LogTestTimeRule.methodDuration;
+        final Map<String, Long> methodDuration =  LogTestTimeRule.getMethodDuration();
         for (Map.Entry<String,Long> entry:methodDuration.entrySet() ) {
             log.info("{} took {} ms",entry.getKey(),entry.getValue());
         }

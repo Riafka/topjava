@@ -98,7 +98,7 @@ public class UserServiceTest {
 
     @AfterClass
     public static void afterClass() {
-        final Map<String, Long> methodDuration = LogTestTimeRule.methodDuration;
+        final Map<String, Long> methodDuration = LogTestTimeRule.getMethodDuration();
         for (Map.Entry<String, Long> entry : methodDuration.entrySet()) {
             log.info("{} took {} ms", entry.getKey(), entry.getValue());
         }
