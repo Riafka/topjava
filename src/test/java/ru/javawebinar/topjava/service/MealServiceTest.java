@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.service;
 import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Stopwatch;
 import org.junit.rules.TestRule;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.RunWith;
@@ -21,6 +22,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertThrows;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -37,38 +39,23 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class MealServiceTest {
     private static final Logger log = getLogger(MealServiceTest.class);
 
-    private static final Map<String, Long> testMethodDurations = new LinkedHashMap<>();
+    private static final StringBuilder stringBuilder = new StringBuilder(System.getProperty("line.separator"));
+
+    @Rule
+    public final TestRule watchman = new Stopwatch() {
+        @Override
+        protected void finished(long nanos, Description description) {
+            Long duration = TimeUnit.MILLISECONDS.convert(nanos, TimeUnit.NANOSECONDS);
+            log.info("{} {} ms", description.getMethodName(), duration);
+            stringBuilder.append(String.format("%-25s %d ms", description.getMethodName(), duration)).append(System.getProperty("line.separator"));
+        }
+    };
 
     @Autowired
     private MealService service;
 
-    @Rule
-    public final TestRule watchman = new TestWatcher() {
-        private Long startTime;
-
-        @Override
-        protected void starting(Description description) {
-            super.starting(description);
-            startTime = System.nanoTime();
-        }
-
-        @Override
-        protected void finished(Description description) {
-            super.finished(description);
-            Long endTime = System.nanoTime();
-            log.info(String.valueOf((endTime - startTime) / 1000000));
-            testMethodDurations.put(description.getMethodName(), endTime - startTime);
-        }
-    };
-
     @AfterClass
     public static void afterClass() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(System.getProperty("line.separator"));
-        for (Map.Entry<String, Long> entry : testMethodDurations.entrySet()) {
-            String paddedName = String.format("%-25s", entry.getKey());
-            stringBuilder.append(paddedName).append(entry.getValue() / 1000000).append(System.getProperty("line.separator"));
-        }
         stringBuilder.deleteCharAt(stringBuilder.length() - 1);
         log.info(stringBuilder.toString());
     }
