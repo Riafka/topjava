@@ -22,10 +22,10 @@
     </logger>
 
     <logger name="org.postgresql" level="debug"/>
-    <logger name="org.springframework.jdbc" level="info"/>
+    <logger name="org.springframework.jdbc" level="debug"/>
     <logger name="ru.javawebinar.topjava" level="debug"/>
 
-    <root level="INFO">
+    <root level="info">
         <appender-ref ref="console"/>
     </root>
 
