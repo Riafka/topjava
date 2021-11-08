@@ -48,7 +48,7 @@
               p:password="${database.password}"/>
     </beans>
 
-    <beans profile="datajpa,jpa,jdbc">
+    <beans profile="datajpa,jpa">
         <bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
               p:dataSource-ref="dataSource"
               p:packagesToScan="ru.javawebinar.**.model">

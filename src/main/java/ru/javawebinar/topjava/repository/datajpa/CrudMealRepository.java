@@ -10,16 +10,19 @@ import ru.javawebinar.topjava.model.Meal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Transactional(readOnly = true)
 public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
     @Transactional
     @Modifying
     @Query("DELETE FROM Meal m WHERE m.id=:id AND m.user.id =:user_id")
     int delete(@Param("id") int id, @Param("user_id") int userId);
 
-    List<Meal> findAllByUserIdOrderByDateTimeDesc(int userId);
+    @Query(name = Meal.ALL_SORTED)
+    List<Meal> getAll(@Param("userId") int userId);
 
-    List<Meal> findAllByUserIdAndDateTimeGreaterThanEqualAndDateTimeLessThanOrderByDateTimeDesc(int userId, LocalDateTime startDateTime, LocalDateTime endDateTime);
+    @Query(name = Meal.GET_BETWEEN)
+    List<Meal> getBetweenHalfOpen(@Param("userId") int userId, @Param("startDateTime") LocalDateTime startDateTime, @Param("endDateTime") LocalDateTime endDateTime);
 
-    @Query("select m FROM Meal m left join fetch m.user WHERE m.id=:id AND m.user.id=:user_id")
+    @Query("SELECT m FROM Meal m LEFT JOIN FETCH m.user WHERE m.id=:id AND m.user.id=:user_id")
     Meal getMealWithUser(@Param("id") int id, @Param("user_id") int userId);
 }

@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.util.StringUtils;
+import ru.javawebinar.topjava.Profiles;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
@@ -29,7 +30,7 @@ public class MealServlet extends HttpServlet {
     public void init() {
         springContext = new GenericXmlApplicationContext();
         ConfigurableEnvironment environment = springContext.getEnvironment();
-        environment.setActiveProfiles("datajpa", "postgres");
+        environment.setActiveProfiles(Profiles.DATAJPA, Profiles.POSTGRES_DB);
         springContext.load("spring/spring-app.xml", "spring/spring-db.xml");
         springContext.refresh();
         mealController = springContext.getBean(MealRestController.class);

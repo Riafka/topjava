@@ -35,23 +35,13 @@ public abstract class BaseJdbcMealRepository implements MealRepository {
 
     @Override
     public Meal save(Meal meal, int userId) {
-        MapSqlParameterSource map = getSqlParameterSource(meal, userId);
-
-        return getUpdatedMeal(meal, map);
-    }
-
-    private MapSqlParameterSource getSqlParameterSource(Meal meal, int userId) {
-        return new MapSqlParameterSource()
+        MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("id", meal.getId())
                 .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
                 .addValue("date_time", getDateTime(meal.getDateTime()))
                 .addValue("user_id", userId);
-    }
 
-    protected abstract <T> T getDateTime(LocalDateTime dateTime);
-
-    private Meal getUpdatedMeal(Meal meal, MapSqlParameterSource map) {
         if (meal.isNew()) {
             Number newId = insertMeal.executeAndReturnKey(map);
             meal.setId(newId.intValue());
@@ -90,4 +80,6 @@ public abstract class BaseJdbcMealRepository implements MealRepository {
                 "SELECT * FROM meals WHERE user_id=?  AND date_time >=  ? AND date_time < ? ORDER BY date_time DESC",
                 ROW_MAPPER, userId, getDateTime(startDateTime), getDateTime(endDateTime));
     }
+
+    protected abstract <T> T getDateTime(LocalDateTime dateTime);
 }
