@@ -14,12 +14,12 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public abstract class BaseJdbcMealRepository implements MealRepository {
-    protected static final RowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
+public abstract class BaseJdbcMealRepository<T> implements MealRepository {
+    private static final RowMapper<Meal> ROW_MAPPER = BeanPropertyRowMapper.newInstance(Meal.class);
 
-    protected final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-    protected final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     private final SimpleJdbcInsert insertMeal;
 
@@ -81,5 +81,5 @@ public abstract class BaseJdbcMealRepository implements MealRepository {
                 ROW_MAPPER, userId, getDateTime(startDateTime), getDateTime(endDateTime));
     }
 
-    protected abstract <T> T getDateTime(LocalDateTime dateTime);
+    protected abstract T getDateTime(LocalDateTime dateTime);
 }

@@ -14,8 +14,8 @@ import java.util.List;
 public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
     @Transactional
     @Modifying
-    @Query("DELETE FROM Meal m WHERE m.id=:id AND m.user.id =:user_id")
-    int delete(@Param("id") int id, @Param("user_id") int userId);
+    @Query(name = Meal.DELETE)
+    int delete(@Param("id") int id, @Param("userId") int userId);
 
     @Query(name = Meal.ALL_SORTED)
     List<Meal> getAll(@Param("userId") int userId);
@@ -23,6 +23,6 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
     @Query(name = Meal.GET_BETWEEN)
     List<Meal> getBetweenHalfOpen(@Param("userId") int userId, @Param("startDateTime") LocalDateTime startDateTime, @Param("endDateTime") LocalDateTime endDateTime);
 
-    @Query("SELECT m FROM Meal m LEFT JOIN FETCH m.user WHERE m.id=:id AND m.user.id=:user_id")
-    Meal getMealWithUser(@Param("id") int id, @Param("user_id") int userId);
+    @Query("SELECT m FROM Meal m JOIN FETCH m.user WHERE m.id=:id AND m.user.id=:user_id")
+    Meal getWithUser(@Param("id") int id, @Param("user_id") int userId);
 }
