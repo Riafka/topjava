@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.repository.jdbc;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.support.DataAccessUtils;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -16,14 +15,10 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.util.ValidationUtil;
 
-import javax.validation.Validation;
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Repository
 @Transactional(readOnly = true)
@@ -38,46 +33,23 @@ public class JdbcUserRepository implements UserRepository {
     private final SimpleJdbcInsert insertUser;
 
     private final ResultSetExtractor<List<User>> resultSetExtractor = rs -> {
-        List<User> users = new ArrayList<>();
-        User currentUser = null;
+        Map<Integer, User> usersMap = new LinkedHashMap<>();
+        User currentUser;
         int i = 0;
         while (rs.next()) {
             i++;
-            long id = rs.getLong("id");
-            if (currentUser == null) { // initial object
-                currentUser = ROW_MAPPER.mapRow(rs, i);
-            } else if (currentUser.getId() != id) { // break
-                users.add(currentUser);
-                currentUser = ROW_MAPPER.mapRow(rs, i);
+            currentUser = ROW_MAPPER.mapRow(rs, i);
+            User oldUser = usersMap.putIfAbsent(currentUser.getId(), currentUser);
+            String roleName = rs.getString("role");
+            Role role = roleName != null ? Role.valueOf(roleName) : null;
+            if (oldUser == null) {
+                currentUser.addRole(role);
+            } else {
+                oldUser.addRole(role);
             }
-            currentUser.addRole(Role.valueOf(rs.getString("role")));
         }
-        if (currentUser != null) { // last object
-            users.add(currentUser);
-        }
-        return users;
+        return usersMap.values().stream().collect(Collectors.toList());
     };
-
-    private static class RolesAddBatch implements BatchPreparedStatementSetter {
-        private final List<Role> roles;
-        private final int user_id;
-
-        private RolesAddBatch(Set<Role> roles, int user_id) {
-            this.roles = roles.stream().toList();
-            this.user_id = user_id;
-        }
-
-        @Override
-        public void setValues(PreparedStatement ps, int i) throws SQLException {
-            ps.setInt(1, user_id);
-            ps.setString(2, roles.get(i).toString());
-        }
-
-        @Override
-        public int getBatchSize() {
-            return roles.size();
-        }
-    }
 
     @Autowired
     public JdbcUserRepository(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
@@ -92,9 +64,7 @@ public class JdbcUserRepository implements UserRepository {
     @Override
     @Transactional
     public User save(User user) {
-        ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
-        Validator validator = validatorFactory.getValidator();
-        ValidationUtil.validate(user, validator);
+        ValidationUtil.validate(user);
 
         BeanPropertySqlParameterSource parameterSource = new BeanPropertySqlParameterSource(user);
         if (user.isNew()) {
@@ -110,7 +80,18 @@ public class JdbcUserRepository implements UserRepository {
                 jdbcTemplate.update("DELETE FROM user_roles WHERE user_id =?", user.getId());
             }
         }
-        jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?,?)", new RolesAddBatch(user.getRoles(), user.getId()));
+        if (!user.getRoles().isEmpty()) {
+            var list = user.getRoles()
+                    .stream()
+                    .map(role -> {
+                        Object[] objects = new Object[2];
+                        objects[0] = user.getId();
+                        objects[1] = role.toString();
+                        return objects;
+                    }).
+                    collect(Collectors.toList());
+            jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?,?)", list);
+        }
         return user;
     }
 

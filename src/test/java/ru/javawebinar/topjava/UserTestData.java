@@ -22,6 +22,10 @@ public class UserTestData {
         return new User(null, "New", "new@gmail.com", "newPass", 1555, false, new Date(), List.of(Role.ADMIN, Role.USER));
     }
 
+    public static User getNewWithNoRoles() {
+        return new User(null, "New", "new@gmail.com", "newPass", 1555, false, new Date(), null);
+    }
+
     public static User getUpdated() {
         User updated = new User(admin);
         updated.setEmail("update@gmail.com");
@@ -29,7 +33,7 @@ public class UserTestData {
         updated.setCaloriesPerDay(330);
         updated.setPassword("newPass");
         updated.setEnabled(false);
-        updated.setRoles(List.of(Role.ADMIN, Role.USER));
+        updated.setRoles(List.of(Role.ADMIN));
         return updated;
     }
 }

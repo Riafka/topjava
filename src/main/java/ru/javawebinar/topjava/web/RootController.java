@@ -31,9 +31,4 @@ public class RootController {
         SecurityUtil.setAuthUserId(userId);
         return "redirect:meals";
     }
-
-    @GetMapping(value = "/mealForm")
-    public String mealForm() {
-        return "mealForm";
-    }
 }

@@ -67,13 +67,17 @@ public class User extends AbstractNamedEntity {
     @Range(min = 10, max = 10000)
     private int caloriesPerDay = DEFAULT_CALORIES_PER_DAY;
 
+    public void setMeals(List<Meal> meals) {
+        this.meals = meals;
+    }
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "user")//, cascade = CascadeType.REMOVE, orphanRemoval = true)
     @OrderBy("dateTime DESC")
     @OnDelete(action = OnDeleteAction.CASCADE) //https://stackoverflow.com/a/44988100/548473
     private List<Meal> meals;
 
     public User() {
-        roles = new HashSet<>();
+
     }
 
     public User(User u) {
@@ -143,7 +147,12 @@ public class User extends AbstractNamedEntity {
     }
 
     public void addRole(Role role) {
-        this.roles.add(role);
+        if (this.roles == null) {
+            roles = new HashSet<>();
+        }
+        if (role != null) {
+            this.roles.add(role);
+        }
     }
 
     public List<Meal> getMeals() {
