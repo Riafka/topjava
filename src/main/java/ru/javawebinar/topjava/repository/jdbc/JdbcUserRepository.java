@@ -15,6 +15,7 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.util.ValidationUtil;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,17 +39,20 @@ public class JdbcUserRepository implements UserRepository {
         int i = 0;
         while (rs.next()) {
             i++;
-            currentUser = ROW_MAPPER.mapRow(rs, i);
-            User oldUser = usersMap.putIfAbsent(currentUser.getId(), currentUser);
-            String roleName = rs.getString("role");
-            Role role = roleName != null ? Role.valueOf(roleName) : null;
-            if (oldUser == null) {
-                currentUser.addRole(role);
+            int id = rs.getInt("id");
+            if (usersMap.containsKey(id)) {
+                currentUser = usersMap.get(id);
             } else {
-                oldUser.addRole(role);
+                currentUser = ROW_MAPPER.mapRow(rs, i);
+                usersMap.put(id, currentUser);
+            }
+
+            String roleName = rs.getString("role");
+            if (roleName != null) {
+                currentUser.addRole(Role.valueOf(roleName));
             }
         }
-        return usersMap.values().stream().collect(Collectors.toList());
+        return new ArrayList<>(usersMap.values());
     };
 
     @Autowired
@@ -80,16 +84,16 @@ public class JdbcUserRepository implements UserRepository {
                 jdbcTemplate.update("DELETE FROM user_roles WHERE user_id =?", user.getId());
             }
         }
-        if (!user.getRoles().isEmpty()) {
+        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
             var list = user.getRoles()
                     .stream()
                     .map(role -> {
                         Object[] objects = new Object[2];
                         objects[0] = user.getId();
-                        objects[1] = role.toString();
+                        objects[1] = role.name();
                         return objects;
-                    }).
-                    collect(Collectors.toList());
+                    })
+                    .collect(Collectors.toList());
             jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role) VALUES (?,?)", list);
         }
         return user;

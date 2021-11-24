@@ -10,7 +10,7 @@
 <section>
     <hr/>
     <h2><spring:message code="meal.title"/></h2>
-    <form method="get" action="${pageContext.request.contextPath}/meals/filter">
+    <form method="get" action="meals/filter">
         <dl>
             <dt><spring:message code="meal.fromDate"/>:</dt>
             <dd><input type="date" name="startDate" value="${param.startDate}"></dd>
@@ -49,8 +49,8 @@
                 </td>
                 <td>${meal.description}</td>
                 <td>${meal.calories}</td>
-                <td><a href="meals/update/${meal.id}">Update</a></td>
-                <td><a href="meals/delete/${meal.id}">Delete</a></td>
+                <td><a href="meals/update/${meal.id}"><spring:message code="meal.update"/></a></td>
+                <td><a href="meals/delete/${meal.id}"><spring:message code="meal.delete"/></a></td>
             </tr>
         </c:forEach>
     </table>

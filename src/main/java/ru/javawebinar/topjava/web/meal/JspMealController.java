@@ -3,17 +3,11 @@ package ru.javawebinar.topjava.web.meal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.util.MealsUtil;
-import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -38,40 +32,40 @@ public class JspMealController extends AbstractMealController {
     }
 
     @GetMapping(value = "create")
-    public String create(HttpServletRequest request) {
+    public String create(Model model) {
         final Meal meal = new Meal(LocalDateTime.now().truncatedTo(ChronoUnit.MINUTES), "", 1000);
-        request.setAttribute("meal", meal);
-        request.setAttribute("action", "create");
+        model.addAttribute("meal", meal);
         return "mealForm";
     }
 
     @GetMapping(value = "update/{id}")
-    public String update(HttpServletRequest request, @PathVariable int id) {
+    public String update(Model model, @PathVariable int id) {
         final Meal meal = get(id);
-        request.setAttribute("meal", meal);
-        request.setAttribute("action", "edit");
+        model.addAttribute("meal", meal);
         return "mealForm";
     }
 
     @GetMapping
     public String getAll(Model model) {
-        model.addAttribute("meals", MealsUtil.getTos(service.getAll(SecurityUtil.authUserId()), SecurityUtil.authUserCaloriesPerDay()));
+        model.addAttribute("meals", super.getAll());
         return "meals";
     }
 
-    //params = "action=filter"
     @GetMapping(value = "filter")
-    public String filter(HttpServletRequest request) {
-        LocalDate startDate = parseLocalDate(request.getParameter("startDate"));
-        LocalDate endDate = parseLocalDate(request.getParameter("endDate"));
-        LocalTime startTime = parseLocalTime(request.getParameter("startTime"));
-        LocalTime endTime = parseLocalTime(request.getParameter("endTime"));
-        request.setAttribute("meals", getBetween(startDate, startTime, endDate, endTime));
+    public String filter(@RequestParam(value = "startDate", required = false) String startDateInput,
+                         @RequestParam(value = "endDate", required = false) String endDateInput,
+                         @RequestParam(value = "startTime", required = false) String startTimeInput,
+                         @RequestParam(value = "endTime", required = false) String endTimeInput, Model model) {
+        LocalDate startDate = parseLocalDate(startDateInput);
+        LocalDate endDate = parseLocalDate(endDateInput);
+        LocalTime startTime = parseLocalTime(startTimeInput);
+        LocalTime endTime = parseLocalTime(endTimeInput);
+        model.addAttribute("meals", getBetween(startDate, startTime, endDate, endTime));
         return "meals";
     }
 
     @PostMapping
-    public String doPost(HttpServletRequest request) throws UnsupportedEncodingException {
+    public String doPost(HttpServletRequest request) {
         Meal meal = new Meal(
                 LocalDateTime.parse(request.getParameter("dateTime")),
                 request.getParameter("description"),

@@ -8,12 +8,10 @@
 <jsp:include page="fragments/bodyHeader.jsp"/>
 <section>
     <hr>
-    <spring:message code="meal.createMeal" var="createMeal"/>
-    <spring:message code="meal.editMeal" var="editMeal"/>
-    <h2>${requestScope.action == 'create' ? createMeal : editMeal}
+    <h2><spring:message code="${meal.id == null ? 'meal.createMeal' : 'meal.editMeal'}"/>
     </h2>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <form method="post" action="${pageContext.request.contextPath}/meals">
+    <form method="post" action="meals">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
             <dt><spring:message code="meal.dateTime"/>:</dt>
