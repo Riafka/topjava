@@ -10,15 +10,13 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 import ru.javawebinar.topjava.util.ValidationUtil;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -35,14 +33,13 @@ public class JdbcUserRepository implements UserRepository {
 
     private final ResultSetExtractor<List<User>> resultSetExtractor = rs -> {
         Map<Integer, User> usersMap = new LinkedHashMap<>();
-        User currentUser;
+
         int i = 0;
         while (rs.next()) {
             i++;
             int id = rs.getInt("id");
-            if (usersMap.containsKey(id)) {
-                currentUser = usersMap.get(id);
-            } else {
+            User currentUser = usersMap.get(id);
+            if (currentUser == null) {
                 currentUser = ROW_MAPPER.mapRow(rs, i);
                 usersMap.put(id, currentUser);
             }
@@ -84,7 +81,8 @@ public class JdbcUserRepository implements UserRepository {
                 jdbcTemplate.update("DELETE FROM user_roles WHERE user_id =?", user.getId());
             }
         }
-        if (user.getRoles() != null && !user.getRoles().isEmpty()) {
+
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
             var list = user.getRoles()
                     .stream()
                     .map(role -> {
