@@ -533,8 +533,7 @@
                     <con:request>{
                         "dateTime": "2021-02-28T10:00:00",
                         "description": "Созданный ужин",
-                        "calories": 300,
-                        "user": null
+                        "calories": 300
                         }
                     </con:request>
                     <con:originalUri>http://localhost/topjava/rest/meals</con:originalUri>
