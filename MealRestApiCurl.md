@@ -6,7 +6,7 @@ curl -i http://localhost:8080/topjava/rest/meals
 
 curl -i http://localhost:8080/topjava/rest/meals/100002
 
-### Получить еду с фильтром по полу-открытому интервалу(дата/время начала, дата/время конца)
+### Получить еду с фильтром по полуоткрытому интервалу(дата/время начала, дата/время конца)
 
 curl
 -i 'http://localhost:8080/topjava/rest/meals/filter/?startDate=2020-01-30&startTime=10:00:00&endDate=2020-01-30&endTime=13:00:01'

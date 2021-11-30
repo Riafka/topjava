@@ -11,7 +11,7 @@
         <con:resource name="users" path="/topjava/rest/admin/users" id="6da03be8-b9dc-43d8-a333-3253fa8d4dad">
             <con:settings/>
             <con:parameters/>
-            <con:resource name="100001" path="with-meals/100001" id="9c973fb6-f13a-4454-8aa4-8865d1d0405a">
+            <con:resource name="100001" path="100001/with-meals" id="9c973fb6-f13a-4454-8aa4-8865d1d0405a">
                 <con:settings/>
                 <con:parameters/>
                 <con:method name="" id="da3cc1f4-7ea2-49bc-a19d-79bf83471a67" method="GET">
