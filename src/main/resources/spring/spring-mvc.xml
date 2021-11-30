@@ -53,8 +53,8 @@
           class="org.springframework.context.support.ConversionServiceFactoryBean">
         <property name="converters">
             <set>
-                <bean class="ru.javawebinar.topjava.util.StringToLocalDate"/>
-                <bean class="ru.javawebinar.topjava.util.StringToLocalTime"/>
+                <bean class="ru.javawebinar.topjava.util.converter.StringToLocalDate"/>
+                <bean class="ru.javawebinar.topjava.util.converter.StringToLocalTime"/>
             </set>
         </property>
     </bean>
