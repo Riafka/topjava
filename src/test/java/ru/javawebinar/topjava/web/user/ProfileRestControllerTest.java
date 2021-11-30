@@ -16,8 +16,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.MealTestData.MEAL_MATCHER;
 import static ru.javawebinar.topjava.MealTestData.meals;
-import static ru.javawebinar.topjava.Profiles.DATAJPA;
-import static ru.javawebinar.topjava.Profiles.REPOSITORY_IMPLEMENTATION;
 import static ru.javawebinar.topjava.UserTestData.*;
 import static ru.javawebinar.topjava.web.user.ProfileRestController.REST_URL;
 
@@ -54,14 +52,13 @@ class ProfileRestControllerTest extends AbstractControllerTest {
 
     @Test
     void getWithMeals() throws Exception {
-        Assumptions.assumeTrue(REPOSITORY_IMPLEMENTATION.equals(DATAJPA));
-        User userWithMeals = new User(user);
+        Assumptions.assumeTrue(isJpaImpl());
         ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + "/with-meals"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
 
         User userRead = USER_MATCHER.readFromJson(action);
-        USER_MATCHER.assertMatch(userRead, userWithMeals);
+        USER_MATCHER.assertMatch(userRead, user);
         MEAL_MATCHER.assertMatch(userRead.getMeals(), meals);
     }
 }
