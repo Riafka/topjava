@@ -27,8 +27,6 @@ import java.util.Arrays;
 @Transactional
 @ActiveProfiles(resolver = ActiveDbProfileResolver.class, profiles = Profiles.REPOSITORY_IMPLEMENTATION)
 public abstract class AbstractControllerTest {
-    @Autowired
-    private Environment environment;
 
     private static final CharacterEncodingFilter CHARACTER_ENCODING_FILTER = new CharacterEncodingFilter();
 
@@ -42,6 +40,9 @@ public abstract class AbstractControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    @Autowired
+    private Environment environment;
+
     @PostConstruct
     private void postConstruct() {
         mockMvc = MockMvcBuilders
@@ -54,7 +55,7 @@ public abstract class AbstractControllerTest {
         return mockMvc.perform(builder);
     }
 
-    protected boolean isJpaImpl() {
-        return Arrays.stream(environment.getActiveProfiles()).anyMatch(profile -> (profile.equalsIgnoreCase(Profiles.JPA)));
+    protected boolean isDataJpaImpl() {
+        return Arrays.stream(environment.getActiveProfiles()).anyMatch(profile -> (profile.equalsIgnoreCase(Profiles.DATAJPA)));
     }
 }
