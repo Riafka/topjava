@@ -1,13 +1,12 @@
 package ru.javawebinar.topjava.model;
 
-import javax.persistence.Entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.validator.constraints.Range;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import javax.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -44,6 +43,7 @@ public class Meal extends AbstractBaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonBackReference
 //    @NotNull
     private User user;
 
