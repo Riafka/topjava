@@ -27,14 +27,20 @@ tr[data-meal-excess="true"] {
     cursor: pointer;
 }
 
+tr[data-user-enabled="false"] {
+    opacity: 0.3;
+}
+
 /*https://getbootstrap.com/docs/4.0/examples/sticky-footer/sticky-footer.css*/
 html {
     position: relative;
     min-height: 100%;
 }
+
 body {
     margin-bottom: 60px !important; /* Margin bottom by footer height */
 }
+
 .footer {
     position: absolute;
     bottom: 0;
