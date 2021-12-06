@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.javawebinar.topjava.UserTestData.*;
 
@@ -90,6 +90,6 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Test
     void disable() {
         service.enable(USER_ID, false);
-        assertEquals(false, service.get(USER_ID).isEnabled());
+        assertFalse(service.get(USER_ID).isEnabled());
     }
 }
