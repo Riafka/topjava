@@ -111,7 +111,7 @@
 </div>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
-<script type="text/javascript">
-    <jsp:include page="fragments/i18n_populate.jsp"/>
-</script>
+<jsp:include page="fragments/i18n_populate.jsp">
+    <jsp:param name="pageName" value="meal"/>
+</jsp:include>
 </html>
