@@ -5,7 +5,8 @@
 
 <nav class="navbar navbar-dark bg-dark py-0">
     <div class="container">
-        <a href="meals" class="navbar-brand"><img src="resources/images/icon-meal.png"> <spring:message code="app.title"/></a>
+        <a href="meals" class="navbar-brand"><img src="resources/images/icon-meal.png"> <spring:message
+                code="app.title"/></a>
         <sec:authorize access="isAuthenticated()">
             <form:form class="form-inline my-2" action="logout" method="post">
                 <sec:authorize access="hasRole('ADMIN')">
@@ -15,6 +16,9 @@
                 <button class="btn btn-primary my-1" type="submit">
                     <span class="fa fa-sign-out"></span>
                 </button>
+                <jsp:include page="locale.jsp">
+                    <jsp:param name="page" value="${requestScope['javax.servlet.forward.request_uri']}"/>
+                </jsp:include>
             </form:form>
         </sec:authorize>
         <sec:authorize access="isAnonymous()">
@@ -24,6 +28,9 @@
                 <button class="btn btn-success" type="submit">
                     <span class="fa fa-sign-in"></span>
                 </button>
+                <jsp:include page="locale.jsp">
+                    <jsp:param name="page" value="/topjava/login"/>
+                </jsp:include>
             </form:form>
         </sec:authorize>
     </div>
