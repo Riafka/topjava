@@ -1,21 +1,13 @@
 package ru.javawebinar.topjava.web.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.to.UserTo;
-import ru.javawebinar.topjava.util.ValidationUtil;
-import ru.javawebinar.topjava.util.exception.ErrorInfo;
-import ru.javawebinar.topjava.util.exception.ErrorType;
-import ru.javawebinar.topjava.web.ExceptionInfoHandler;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 
@@ -25,9 +17,6 @@ import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
 @RequestMapping(value = ProfileRestController.REST_URL, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProfileRestController extends AbstractUserController {
     static final String REST_URL = "/rest/profile";
-
-    @Autowired
-    private ExceptionInfoHandler exceptionInfoHandler;
 
     @GetMapping
     public User get() {
@@ -42,10 +31,7 @@ public class ProfileRestController extends AbstractUserController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<?> register(@RequestBody @Valid UserTo userTo, BindingResult bindingResult) {
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.unprocessableEntity().body(ValidationUtil.getErrorResponse(bindingResult));
-        }
+    public ResponseEntity<?> register(@RequestBody @Valid UserTo userTo) {
         User created = super.create(userTo);
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
                 .path(REST_URL).build().toUri();
@@ -54,10 +40,8 @@ public class ProfileRestController extends AbstractUserController {
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void update(@RequestBody @Valid UserTo userTo, BindingResult bindingResult) {
-        if (!bindingResult.hasErrors()) {
-            super.update(userTo, authUserId());
-        }
+    public void update(@RequestBody @Valid UserTo userTo) {
+        super.update(userTo, authUserId());
     }
 
     @GetMapping("/text")
@@ -68,10 +52,5 @@ public class ProfileRestController extends AbstractUserController {
     @GetMapping("/with-meals")
     public User getWithMeals() {
         return super.getWithMeals(authUserId());
-    }
-
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ErrorInfo> duplicateEmailException(HttpServletRequest req, DataIntegrityViolationException e) {
-        return exceptionInfoHandler.getErrorInfoResponseEntity(req, ErrorType.VALIDATION_ERROR, ValidationUtil.EMAIL_ALREADY_EXISTS, HttpStatus.CONFLICT);
     }
 }

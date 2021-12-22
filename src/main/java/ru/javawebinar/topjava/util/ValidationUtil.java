@@ -2,20 +2,22 @@ package ru.javawebinar.topjava.util;
 
 
 import org.springframework.core.NestedExceptionUtils;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.BindingResult;
 import ru.javawebinar.topjava.HasId;
+import ru.javawebinar.topjava.util.exception.ErrorInfo;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.*;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ValidationUtil {
-    public static final String EMAIL_ALREADY_EXISTS = "User with this email already exists";
-    public static final String MEAL_ALREADY_EXISTS = "You already have meal with this date/time";
-
     private static final Validator validator;
 
     static {
@@ -82,5 +84,9 @@ public class ValidationUtil {
         return result.getFieldErrors().stream()
                 .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
                 .collect(Collectors.joining("<br>"));
+    }
+
+    public static ResponseEntity<ErrorInfo> getErrorInfoResponseEntity(HttpServletRequest req, ErrorType errorType, String detail, HttpStatus httpStatus) {
+        return ResponseEntity.status(httpStatus).body(new ErrorInfo(req.getRequestURL(), errorType, detail));
     }
 }

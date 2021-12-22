@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.web.user;
 
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.support.SessionStatus;
 import ru.javawebinar.topjava.to.UserTo;
-import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import javax.validation.Valid;
@@ -32,7 +32,7 @@ public class ProfileUIController extends AbstractUserController {
                 SecurityUtil.get().setTo(userTo);
                 status.setComplete();
             } catch (DataIntegrityViolationException e) {
-                result.rejectValue("email", "error.user", ValidationUtil.EMAIL_ALREADY_EXISTS);
+                result.rejectValue("email", "error.user", messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()));
                 return "profile";
             }
             return "redirect:/meals";
@@ -57,7 +57,8 @@ public class ProfileUIController extends AbstractUserController {
                 status.setComplete();
                 return "redirect:/login?message=app.registered&username=" + userTo.getEmail();
             } catch (DataIntegrityViolationException e) {
-                result.rejectValue("email", "error.user", ValidationUtil.EMAIL_ALREADY_EXISTS);
+                result.rejectValue("email", "error.user", messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()));
+                model.addAttribute("register", true);
                 return "profile";
             }
         }

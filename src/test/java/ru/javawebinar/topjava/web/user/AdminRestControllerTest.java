@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -9,7 +10,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
-import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 
@@ -106,7 +106,8 @@ class AdminRestControllerTest extends AbstractControllerTest {
         updated.setName("");
         perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(admin)))
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(updated, updated.getPassword())))
                 .andExpect(status().isUnprocessableEntity());
 
         USER_MATCHER.assertMatch(userService.get(USER_ID), userBeforeUpdate);
@@ -149,7 +150,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(admin))
                 .content(jsonWithPassword(newUser, newUser.getPassword())))
                 .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(ValidationUtil.EMAIL_ALREADY_EXISTS)));
+                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()))));
     }
 
     @Test

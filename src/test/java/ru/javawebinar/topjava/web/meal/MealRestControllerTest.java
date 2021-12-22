@@ -3,6 +3,7 @@ package ru.javawebinar.topjava.web.meal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -10,7 +11,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
@@ -30,6 +30,7 @@ import static ru.javawebinar.topjava.util.MealsUtil.getTos;
 class MealRestControllerTest extends AbstractControllerTest {
 
     private static final String REST_URL = MealRestController.REST_URL + '/';
+
 
     @Autowired
     private MealService mealService;
@@ -92,7 +93,7 @@ class MealRestControllerTest extends AbstractControllerTest {
         perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(user))
                 .content(JsonUtil.writeValue(updated)))
-                .andExpect(status().is5xxServerError());
+                .andExpect(status().isUnprocessableEntity());
 
         MEAL_MATCHER.assertMatch(mealService.get(MEAL1_ID, USER_ID), beforeUpdate);
     }
@@ -133,7 +134,7 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(user))
                 .content(JsonUtil.writeValue(newMeal)))
                 .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(ValidationUtil.MEAL_ALREADY_EXISTS)));
+                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleDateTime", null, LocaleContextHolder.getLocale()))));
     }
 
     @Test

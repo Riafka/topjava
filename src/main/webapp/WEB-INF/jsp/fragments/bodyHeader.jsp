@@ -29,7 +29,7 @@
                     <span class="fa fa-sign-in"></span>
                 </button>
                 <jsp:include page="locale.jsp">
-                    <jsp:param name="page" value="/topjava/login"/>
+                    <jsp:param name="page" value="${pageContext.request.contextPath}/login"/>
                 </jsp:include>
             </form:form>
         </sec:authorize>

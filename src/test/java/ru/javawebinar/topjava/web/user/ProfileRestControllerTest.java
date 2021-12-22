@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -11,7 +12,6 @@ import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.to.UserTo;
 import ru.javawebinar.topjava.util.UserUtil;
-import ru.javawebinar.topjava.util.ValidationUtil;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
@@ -24,7 +24,6 @@ import static ru.javawebinar.topjava.UserTestData.*;
 import static ru.javawebinar.topjava.web.user.ProfileRestController.REST_URL;
 
 class ProfileRestControllerTest extends AbstractControllerTest {
-
     @Autowired
     private UserService userService;
 
@@ -87,7 +86,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(newTo)))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(ValidationUtil.EMAIL_ALREADY_EXISTS)));
+                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()))));
     }
 
     @Test
@@ -110,7 +109,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .with(userHttpBasic(user))
                 .content(JsonUtil.writeValue(updatedTo)))
                 .andDo(print())
-                .andExpect(status().isNoContent());
+                .andExpect(status().isUnprocessableEntity());
         USER_MATCHER.assertMatch(userService.get(USER_ID), userBeforeUpdate);
     }
 
@@ -123,7 +122,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .content(JsonUtil.writeValue(updatedTo)))
                 .andDo(print())
                 .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(ValidationUtil.EMAIL_ALREADY_EXISTS)));
+                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()))));
     }
 
     @Test
