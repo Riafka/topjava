@@ -2,11 +2,16 @@ package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,10 +29,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
-@RestControllerAdvice(annotations = RestController.class)
+@RestControllerAdvice(annotations = {RestController.class, Controller.class})
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class ExceptionInfoHandler {
     private static final Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
+
+    @Autowired
+    protected MessageSource messageSource;
 
     //  http://stackoverflow.com/a/22358422/548473
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -37,14 +45,28 @@ public class ExceptionInfoHandler {
     }
 
     @ResponseStatus(HttpStatus.CONFLICT)  // 409
-    @ExceptionHandler(DataIntegrityViolationException.class)
-    public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR);
+    @ExceptionHandler({DataIntegrityViolationException.class})
+    public ResponseEntity<ErrorInfo> duplicateDateTimeException(HttpServletRequest req, Exception e) {
+        Throwable rootCause = ValidationUtil.getRootCause(e);
+        String messageCode;
+        if (rootCause.getMessage().contains("meals_unique_user_datetime_idx")) {
+            messageCode = "app.doubleDateTime";
+        } else {
+            messageCode = "app.doubleEmail";
+        }
+        String message = messageSource.getMessage(messageCode, null, LocaleContextHolder.getLocale());
+        return ValidationUtil.getErrorInfoResponseEntity(req, ErrorType.VALIDATION_ERROR, message, HttpStatus.CONFLICT);
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
-    @ExceptionHandler({IllegalRequestDataException.class, MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class, BindException.class})
-    public ErrorInfo illegalRequestDataError(HttpServletRequest req, BindingResult result) {
+    @ExceptionHandler({IllegalRequestDataException.class})
+    public ErrorInfo illegalRequestDataError(HttpServletRequest req, Exception e) {
+        return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR);
+    }
+
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, HttpMessageNotReadableException.class, BindException.class})
+    public ErrorInfo ValidationDataError(HttpServletRequest req, BindingResult result) {
         return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, ValidationUtil.getErrorResponse(result));
     }
 

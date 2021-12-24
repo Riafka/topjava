@@ -39,6 +39,7 @@ public class MealRestController extends AbstractMealController {
         return super.getAll();
     }
 
+    @Override
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void update(@RequestBody @Valid Meal meal, @PathVariable int id) {
@@ -46,7 +47,7 @@ public class MealRestController extends AbstractMealController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createWithLocation(@RequestBody @Valid Meal meal) {
+    public ResponseEntity<Meal> createWithLocation(@RequestBody @Valid Meal meal) {
         Meal created = super.create(meal);
 
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()

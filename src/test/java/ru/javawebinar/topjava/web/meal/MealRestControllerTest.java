@@ -3,7 +3,6 @@ package ru.javawebinar.topjava.web.meal;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -15,7 +14,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -30,7 +28,6 @@ import static ru.javawebinar.topjava.util.MealsUtil.getTos;
 class MealRestControllerTest extends AbstractControllerTest {
 
     private static final String REST_URL = MealRestController.REST_URL + '/';
-
 
     @Autowired
     private MealService mealService;
@@ -99,6 +96,18 @@ class MealRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateDuplicate() throws Exception {
+        Meal updated = getUpdated();
+        updated.setDateTime(meal2.getDateTime());
+        ResultActions actions =
+                perform(MockMvcRequestBuilders.put(REST_URL + MEAL1_ID).contentType(MediaType.APPLICATION_JSON)
+                        .with(userHttpBasic(user))
+                        .content(JsonUtil.writeValue(updated)));
+        checkErrorInfo(actions, "app.doubleDateTime");
+    }
+
+    @Test
     void createWithLocation() throws Exception {
         Meal newMeal = getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
@@ -129,12 +138,13 @@ class MealRestControllerTest extends AbstractControllerTest {
     void createDuplicate() throws Exception {
         Meal newMeal = getNew();
         newMeal.setDateTime(meal1.getDateTime());
-        perform(MockMvcRequestBuilders.post(REST_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(user))
-                .content(JsonUtil.writeValue(newMeal)))
-                .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleDateTime", null, LocaleContextHolder.getLocale()))));
+        ResultActions actions =
+                perform(MockMvcRequestBuilders.post(REST_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(userHttpBasic(user))
+                        .content(JsonUtil.writeValue(newMeal)))
+                        .andExpect(status().isConflict());
+        checkErrorInfo(actions, "app.doubleDateTime");
     }
 
     @Test

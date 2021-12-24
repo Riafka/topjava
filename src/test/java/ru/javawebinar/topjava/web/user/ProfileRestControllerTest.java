@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -15,7 +14,6 @@ import ru.javawebinar.topjava.util.UserUtil;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import static org.hamcrest.core.StringContains.containsString;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,12 +79,12 @@ class ProfileRestControllerTest extends AbstractControllerTest {
     @Transactional(propagation = Propagation.NEVER)
     void registerDuplicateEmail() throws Exception {
         UserTo newTo = new UserTo(null, "newName", "user@yandex.ru", "newPassword", 1500);
-        perform(MockMvcRequestBuilders.post(REST_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(JsonUtil.writeValue(newTo)))
-                .andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()))));
+        ResultActions resultActions =
+                perform(MockMvcRequestBuilders.post(REST_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(JsonUtil.writeValue(newTo)))
+                        .andDo(print());
+        checkErrorInfo(resultActions, "app.doubleEmail");
     }
 
     @Test
@@ -117,12 +115,12 @@ class ProfileRestControllerTest extends AbstractControllerTest {
     @Transactional(propagation = Propagation.NEVER)
     void updateDuplicateEmail() throws Exception {
         UserTo updatedTo = new UserTo(null, "Vasiliy", "admin@gmail.com", "newPassword", 1500);
-        perform(MockMvcRequestBuilders.put(REST_URL).contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(user))
-                .content(JsonUtil.writeValue(updatedTo)))
-                .andDo(print())
-                .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()))));
+        ResultActions resultActions =
+                perform(MockMvcRequestBuilders.put(REST_URL).contentType(MediaType.APPLICATION_JSON)
+                        .with(userHttpBasic(user))
+                        .content(JsonUtil.writeValue(updatedTo)))
+                        .andDo(print());
+        checkErrorInfo(resultActions, "app.doubleEmail");
     }
 
     @Test

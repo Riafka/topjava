@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.web.user;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -13,7 +12,6 @@ import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 
-import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -114,6 +112,19 @@ class AdminRestControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateDuplicateEmail() throws Exception {
+        User updated = getUpdated();
+        updated.setEmail(admin.getEmail());
+        ResultActions resultActions =
+                perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(userHttpBasic(admin))
+                        .content(jsonWithPassword(updated, updated.getPassword())));
+        checkErrorInfo(resultActions, "app.doubleEmail");
+    }
+
+    @Test
     void createWithLocation() throws Exception {
         User newUser = getNew();
         ResultActions action = perform(MockMvcRequestBuilders.post(REST_URL)
@@ -145,12 +156,12 @@ class AdminRestControllerTest extends AbstractControllerTest {
     void createDuplicate() throws Exception {
         User newUser = getNew();
         newUser.setEmail(user.getEmail());
-        perform(MockMvcRequestBuilders.post(REST_URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .with(userHttpBasic(admin))
-                .content(jsonWithPassword(newUser, newUser.getPassword())))
-                .andExpect(status().isConflict())
-                .andExpect(content().string(containsString(messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()))));
+        ResultActions actions =
+                perform(MockMvcRequestBuilders.post(REST_URL)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(userHttpBasic(admin))
+                        .content(jsonWithPassword(newUser, newUser.getPassword())));
+        checkErrorInfo(actions, "app.doubleEmail");
     }
 
     @Test

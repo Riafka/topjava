@@ -15,7 +15,7 @@
 
     <security:global-method-security secured-annotations="enabled" pre-post-annotations="enabled"/>
 
-    <mvc:annotation-driven conversion-service="conversionService">
+    <mvc:annotation-driven conversion-service="conversionService" validator="validator">
         <mvc:message-converters>
             <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
                 <property name="objectMapper" ref="objectMapper"/>
@@ -69,9 +69,6 @@
         <property name="basenames" value="file:///#{systemEnvironment[TOPJAVA_ROOT]}/config/messages/app"/>
         <property name="fallbackToSystemLocale" value="false"/>
     </bean>
-    <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
-        <property name="paramName" value="lang"/>
-    </bean>
     <mvc:interceptors>
         <bean class="ru.javawebinar.topjava.web.interceptor.ModelInterceptor"/>
         <bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"/>
@@ -79,5 +76,17 @@
     <bean id="localeResolver" class="org.springframework.web.servlet.i18n.CookieLocaleResolver">  <!-- (1) -->
         <property name="defaultLocale" value="en"/>  <!-- (2) -->
         <property name="cookieName" value="localeCookie"/>  <!-- (3) -->
+    </bean>
+    <!-- Localization of hibernate messages during validation!-->
+    <bean id="validationMessageSource" class="org.springframework.context.support.ReloadableResourceBundleMessageSource"
+          p:defaultEncoding="UTF-8">
+        <property name="basename" value="file:///#{systemEnvironment[TOPJAVA_ROOT]}/config/messages/app"/>
+        <property name="fallbackToSystemLocale" value="false"/>
+    </bean>
+
+    <bean name="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="validationMessageSource">
+            <ref bean="validationMessageSource"/>
+        </property>
     </bean>
 </beans>

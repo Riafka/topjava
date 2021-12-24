@@ -15,7 +15,6 @@ import ru.javawebinar.topjava.util.exception.NotFoundException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.*;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ValidationUtil {
     private static final Validator validator;
@@ -80,10 +79,10 @@ public class ValidationUtil {
         return rootCause != null ? rootCause : t;
     }
 
-    public static String getErrorResponse(BindingResult result) {
+    public static String[] getErrorResponse(BindingResult result) {
         return result.getFieldErrors().stream()
                 .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
-                .collect(Collectors.joining("<br>"));
+                .toArray(String[]::new);
     }
 
     public static ResponseEntity<ErrorInfo> getErrorInfoResponseEntity(HttpServletRequest req, ErrorType errorType, String detail, HttpStatus httpStatus) {

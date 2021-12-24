@@ -16,11 +16,15 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import ru.javawebinar.topjava.ActiveDbProfileResolver;
 import ru.javawebinar.topjava.Profiles;
+import ru.javawebinar.topjava.util.exception.ErrorType;
 
 import javax.annotation.PostConstruct;
 import java.util.Locale;
 
+import static org.hamcrest.core.StringContains.containsString;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @SpringJUnitWebConfig(locations = {
@@ -69,5 +73,11 @@ public abstract class AbstractControllerTest {
 
     protected ResultActions perform(MockHttpServletRequestBuilder builder) throws Exception {
         return mockMvc.perform(builder);
+    }
+
+    protected void checkErrorInfo(ResultActions actions, String code) throws Exception {
+        actions.andExpect(status().isConflict())
+                .andExpect(content().string(containsString(messageSource.getMessage(code, null, LocaleContextHolder.getLocale()))))
+                .andExpect(content().string(containsString(ErrorType.VALIDATION_ERROR.name())));
     }
 }

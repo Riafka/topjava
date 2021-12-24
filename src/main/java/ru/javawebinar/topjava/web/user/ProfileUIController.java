@@ -32,7 +32,7 @@ public class ProfileUIController extends AbstractUserController {
                 SecurityUtil.get().setTo(userTo);
                 status.setComplete();
             } catch (DataIntegrityViolationException e) {
-                result.rejectValue("email", "error.user", messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()));
+                result.rejectValue("email", "app.doubleEmail", messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()));
                 return "profile";
             }
             return "redirect:/meals";
@@ -57,7 +57,7 @@ public class ProfileUIController extends AbstractUserController {
                 status.setComplete();
                 return "redirect:/login?message=app.registered&username=" + userTo.getEmail();
             } catch (DataIntegrityViolationException e) {
-                result.rejectValue("email", "error.user", messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()));
+                result.rejectValue("email", "app.doubleEmail", messageSource.getMessage("app.doubleEmail", null, LocaleContextHolder.getLocale()));
                 model.addAttribute("register", true);
                 return "profile";
             }
